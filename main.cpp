@@ -113,6 +113,7 @@ bool MyWidget1::nativeEvent(const QByteArray &eventType, void *message, long *re
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+#if 0
 bool MyWidget1::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
     Q_UNUSED(eventType);
@@ -147,6 +148,32 @@ bool MyWidget1::nativeEvent(const QByteArray &eventType, void *message, long *re
     // 继续处理事件
     return false;
 }
+#endif
+
+bool MyWidget1::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+    Q_UNUSED(eventType);
+    Q_UNUSED(result);
+
+    // 这里假设你是在Linux系统下，如果是Windows系统，需要使用MSG的相关函数
+    xcb_generic_event_t* event = static_cast<xcb_generic_event_t*>(message);
+    switch (event->response_type & ~0x80)
+    {
+    case XCB_MOTION_NOTIFY:
+        {
+            xcb_motion_notify_event_t* ev = (xcb_motion_notify_event_t*)event;
+            int xPos = ev->event_x; 
+            int yPos = ev->event_y; 
+            qDebug() << "Mouse Position:" << QPoint(xPos, yPos);
+        }
+        break;
+    default:
+        break;
+    }
+
+    return false;
+}
+
 #endif
 
 int main(int argc, char *argv[])
